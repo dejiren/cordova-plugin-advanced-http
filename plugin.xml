@@ -36,6 +36,11 @@
     <header-file src="src/ios/BinaryResponseSerializer.h"/>
     <header-file src="src/ios/TextResponseSerializer.h"/>
     <header-file src="src/ios/TextRequestSerializer.h"/>
+    <source-file src="src/ios/SM_AFNetworkActivityLogger/SM_AFNetworkActivityConsoleLogger.h"/>
+    <source-file src="src/ios/SM_AFNetworkActivityLogger/SM_AFNetworkActivityLogger.h"/>
+    <source-file src="src/ios/SM_AFNetworkActivityLogger/SM_AFNetworkActivityLoggerProtocol.h"/>
+    <source-file src="src/ios/SM_AFNetworkActivityLogger/SM_AFNetworkActivityConsoleLogger.m"/>
+    <source-file src="src/ios/SM_AFNetworkActivityLogger/SM_AFNetworkActivityLogger.m"/>
     <header-file src="src/ios/SM_AFNetworking/SM_AFHTTPSessionManager.h"/>
     <header-file src="src/ios/SM_AFNetworking/SM_AFNetworking.h"/>
     <header-file src="src/ios/SM_AFNetworking/SM_AFNetworkReachabilityManager.h"/>
