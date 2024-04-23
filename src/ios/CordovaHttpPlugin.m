@@ -5,6 +5,7 @@
 #import "TextResponseSerializer.h"
 #import "TextRequestSerializer.h"
 #import "SM_AFHTTPSessionManager.h"
+#import "SM_AFNetworkActivityLogger.h"
 #import "SDNetworkActivityIndicator.h"
 
 @interface CordovaHttpPlugin()
@@ -454,6 +455,9 @@
 }
 
 - (void)uploadFiles:(CDVInvokedUrlCommand*)command {
+    [[SM_AFNetworkActivityLogger sharedLogger] setLogLevel:SM_AFLoggerLevelDebug];
+    [[SM_AFNetworkActivityLogger sharedLogger] startLogging];
+ 
     SM_AFHTTPSessionManager *manager = [SM_AFHTTPSessionManager manager];
 
     NSString *url = [command.arguments objectAtIndex:0];
