@@ -1,17 +1,17 @@
-// SM_AFNetworking.h
+// AFNetworkActivityConsoleLogger.h
 //
-// Copyright (c) 2013 SM_AFNetworking (http://afnetworking.com/)
-// 
+// Copyright (c) 2018 AFNetworking (http://afnetworking.com/)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,23 +21,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <Availability.h>
-#import <TargetConditionals.h>
+#import "SM_AFNetworkActivityLoggerProtocol.h"
 
-#ifndef _AFNETWORKING_
-    #define _AFNETWORKING_
-    #define _AFNetworkActivityLogger_
-    
-    #import "SM_AFNetworkActivityLogger.h"
-    #import "SM_AFURLRequestSerialization.h"
-    #import "SM_AFURLResponseSerialization.h"
-    #import "SM_AFSecurityPolicy.h"
+/**
+ `AFNetworkActivityConsoleLogger` logs requests and responses made by AFNetworking to the console.
+ */
+@interface SM_AFNetworkActivityConsoleLogger : NSObject <SM_AFNetworkActivityLoggerProtocol>
 
-#if !TARGET_OS_WATCH
-    #import "SM_AFNetworkReachabilityManager.h"
-#endif
+@property (nonatomic, strong) NSPredicate *filterPredicate;
+@property (nonatomic, assign) SM_AFHTTPRequestLoggerLevel level;
 
-    #import "SM_AFURLSessionManager.h"
-    #import "SM_AFHTTPSessionManager.h"
-
-#endif /* _AFNETWORKING_ */
+@end

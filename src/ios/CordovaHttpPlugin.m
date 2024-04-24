@@ -5,6 +5,7 @@
 #import "TextResponseSerializer.h"
 #import "TextRequestSerializer.h"
 #import "SM_AFHTTPSessionManager.h"
+#import "SM_AFNetworkActivityLogger.h"
 #import "SDNetworkActivityIndicator.h"
 
 @interface CordovaHttpPlugin()
@@ -454,6 +455,9 @@
 }
 
 - (void)uploadFiles:(CDVInvokedUrlCommand*)command {
+    [[SM_AFNetworkActivityLogger sharedLogger] setLogLevel:SM_AFLoggerLevelDebug];
+    [[SM_AFNetworkActivityLogger sharedLogger] startLogging];
+ 
     SM_AFHTTPSessionManager *manager = [SM_AFHTTPSessionManager manager];
 
     NSString *url = [command.arguments objectAtIndex:0];
@@ -481,7 +485,8 @@
                 NSString *filePath = (NSString *) [filePaths objectAtIndex:i];
                 NSString *uploadName = (NSString *) [names objectAtIndex:i];
                 NSURL *fileURL = [NSURL URLWithString: filePath];
-                [formData appendPartWithFileURL:fileURL name:uploadName error:&error];
+                [formData appendPartWithFormData:[uploadName dataUsingEncoding:NSUTF8StringEncoding] name:@"filename"];
+                [formData appendPartWithFileURL:fileURL name:@"data" error:&error];
             }
             if (error) {
                 [weakSelf removeRequest:reqId];
@@ -494,13 +499,22 @@
                 [[SDNetworkActivityIndicator sharedActivityIndicator] stopActivity];
                 return;
             }
-        } progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+        } progress:^(NSProgress *progress) {
+            NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+            [dictionary setValue:[NSNumber numberWithBool:YES] forKey:@"isProgress"];
+            [dictionary setValue:[NSNumber numberWithLongLong:progress.completedUnitCount] forKey:@"transferred"];
+            [dictionary setValue:[NSNumber numberWithLongLong:progress.totalUnitCount] forKey:@"total"];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } success:^(NSURLSessionTask *task, id responseObject) {
             [weakSelf removeRequest:reqId];
 
             NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
             [self handleSuccess:dictionary withResponse:(NSHTTPURLResponse*)task.response andData:responseObject];
 
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:NO]];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             [[SDNetworkActivityIndicator sharedActivityIndicator] stopActivity];
         } failure:^(NSURLSessionTask *task, NSError *error) {
@@ -510,6 +524,7 @@
             [self handleError:dictionary withResponse:(NSHTTPURLResponse*)task.response error:error];
 
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:NO]];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             [[SDNetworkActivityIndicator sharedActivityIndicator] stopActivity];
         }];
@@ -546,7 +561,15 @@
     [[SDNetworkActivityIndicator sharedActivityIndicator] startActivity];
 
     @try {
-        NSURLSessionDataTask *task = [manager GET:url parameters:nil progress: nil success:^(NSURLSessionTask *task, id responseObject) {
+        NSURLSessionDataTask *task = [manager GET:url parameters:nil progress:^(NSProgress *progress) {
+            NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+            [dictionary setValue:[NSNumber numberWithBool:YES] forKey:@"isProgress"];
+            [dictionary setValue:[NSNumber numberWithLongLong:progress.completedUnitCount] forKey:@"transferred"];
+            [dictionary setValue:[NSNumber numberWithLongLong:progress.totalUnitCount] forKey:@"total"];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } success:^(NSURLSessionTask *task, id responseObject) {
             [weakSelf removeRequest:reqId];
             /*
              *
@@ -605,6 +628,7 @@
             [dictionary setObject:[filePlugin getDirectoryEntry:filePath isDirectory:NO] forKey:@"file"];
 
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:NO]];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             [[SDNetworkActivityIndicator sharedActivityIndicator] stopActivity];
         } failure:^(NSURLSessionTask *task, NSError *error) {
@@ -614,6 +638,7 @@
             [dictionary setObject:@"There was an error downloading the file" forKey:@"error"];
 
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:dictionary];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:NO]];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             [[SDNetworkActivityIndicator sharedActivityIndicator] stopActivity];
         }];
