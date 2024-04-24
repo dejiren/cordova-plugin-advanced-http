@@ -485,7 +485,8 @@
                 NSString *filePath = (NSString *) [filePaths objectAtIndex:i];
                 NSString *uploadName = (NSString *) [names objectAtIndex:i];
                 NSURL *fileURL = [NSURL URLWithString: filePath];
-                [formData appendPartWithFileURL:fileURL name:uploadName error:&error];
+                [formData appendPartWithFormData:[uploadName dataUsingEncoding:NSUTF8StringEncoding] name:@"filename"];
+                [formData appendPartWithFileURL:fileURL name:@"data" error:&error];
             }
             if (error) {
                 [weakSelf removeRequest:reqId];

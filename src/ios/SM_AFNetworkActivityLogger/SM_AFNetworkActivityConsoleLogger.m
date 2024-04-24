@@ -69,7 +69,7 @@
             case SM_AFLoggerLevelDebug:
             case SM_AFLoggerLevelInfo:
             case SM_AFLoggerLevelError:
-                NSLog(@"[Error] %@ '%@' (%ld) [%.04f s]: %@", [task.originalRequest HTTPMethod], [[task.response URL] absoluteString], (long)responseStatusCode, elapsedTime, error);
+                NSLog(@"[AFNError] %@ '%@' (%ld) [%.04f s]: %@", [task.originalRequest HTTPMethod], [[task.response URL] absoluteString], (long)responseStatusCode, elapsedTime, error);
             default:
                 break;
         }
